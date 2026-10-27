@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-accent-light: #059669;
+  --brand-accent-dark: #34d399;
+  --accent-color: var(--brand-accent-light);
+
+  /* MANDATORY: Automatically adapt native UI to user system preferences */
+  color-scheme: light dark;
+  accent-color: var(--accent-color);
+}
+
+/* MANDATORY: Fallback for browsers without light-dark support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent-color: var(--brand-accent-dark);
+  }
+}
+
+@supports (color: light-dark(white, black)) {
+  :root {
+    --accent-color: light-dark(var(--brand-accent-light), var(--brand-accent-dark));
+  }
+}
+
+/* Canonical visually-hidden utility preserving accessibility tree */
+.visually-hidden {
+  position: absolute;
+  clip-path: inset(50%);
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
+}
+
+@media (pointer: coarse) {
+  input,
+  select,
+  button {
+    min-height: 52px;
+  }
+}
+
+/* Required field validation feedback using :user-invalid + fallback */
+.field-error-msg {
+  display: none;
+}
+
+input:user-invalid,
+select:user-invalid,
+input.user-invalid-fallback,
+select.user-invalid-fallback {
+  border-color: #dc2626 !important;
+  background-color: rgba(254, 226, 226, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  input:user-invalid,
+  select:user-invalid,
+  input.user-invalid-fallback,
+  select.user-invalid-fallback {
+    border-color: #f87171 !important;
+    background-color: rgba(127, 29, 29, 0.25);
+  }
+}
+
+.field-group:has(input:user-invalid) .field-error-msg,
+.field-group:has(select:user-invalid) .field-error-msg,
+.field-group:has(input.user-invalid-fallback) .field-error-msg,
+.field-group:has(select.user-invalid-fallback) .field-error-msg {
+  display: flex;
+}
+
+/* Responsive Table with Container Queries & Sticky Headers */
+.table-wrapper {
+  overflow: auto;
+  max-inline-size: 100%;
+  max-block-size: min(620px, 78vh);
+  container-type: inline-size;
+}
+
+.expense-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  --label-2: "Kategori";
+  --label-3: "Tanggal";
+  --label-4: "Nominal";
+  --label-5: "Aksi";
+}
+
+.expense-table thead {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 2;
+}
+
+.expense-table tbody th {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+}
+
+@container (width < 600px) {
+  .expense-table,
+  .expense-table thead,
+  .expense-table tbody,
+  .expense-table tr,
+  .expense-table th,
+  .expense-table td {
+    display: block;
+  }
+
+  .expense-table thead {
+    /* MANDATORY: Hide column header from layout and screen readers */
+    display: none;
+  }
+
+  .expense-table tbody tr {
+    margin-block-end: 0.875rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    overflow: hidden;
+  }
+
+  .expense-table tbody th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+  }
+
+  .expense-table tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem !important;
+  }
+
+  .expense-table td:nth-child(2)::before {
+    content: var(--label-2) ": ";
+    font-weight: 500;
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+
+  .expense-table td:nth-child(3)::before {
+    content: var(--label-3) ": ";
+    font-weight: 500;
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+
+  .expense-table td:nth-child(4)::before {
+    content: var(--label-4) ": ";
+    font-weight: 500;
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+
+  .expense-table td:nth-child(5)::before {
+    content: var(--label-5) ": ";
+    font-weight: 500;
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+}
