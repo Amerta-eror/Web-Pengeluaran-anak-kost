@@ -184,10 +184,10 @@ function sendViaGmailSmtpTls(options: SmtpTransportOptions): Promise<void> {
           sendLine("AUTH LOGIN");
         } else if (step === 2 && code === 334) {
           step = 3;
-          sendLine(Buffer.from(gmailUser, "utf8").toString("base64"));
+          sendLine(Buffer.from(gmailUser).toString("base64"));
         } else if (step === 3 && code === 334) {
           step = 4;
-          sendLine(Buffer.from(gmailAppPassword, "utf8").toString("base64"));
+          sendLine(Buffer.from(gmailAppPassword).toString("base64"));
         } else if (step === 4 && code === 235) {
           step = 5;
           sendLine(`MAIL FROM:<${gmailUser}>`);
@@ -202,7 +202,7 @@ function sendViaGmailSmtpTls(options: SmtpTransportOptions): Promise<void> {
           const mimeMessage = [
             `From: "Quick-Expense Logger" <${gmailUser}>`,
             `To: <${toEmail}>`,
-            `Subject: =?UTF-8?B?${Buffer.from(subject, "utf8").toString("base64")}?=`,
+            `Subject: =?UTF-8?B?${Buffer.from(subject).toString("base64")}?=`,
             `MIME-Version: 1.0`,
             `Content-Type: multipart/alternative; boundary="${boundary}"`,
             ``,
