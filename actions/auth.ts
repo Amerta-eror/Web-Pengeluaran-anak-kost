@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { ensureDatabaseTables, prisma } from "@/lib/prisma";
 import {
   claimOrphanExpensesForUser,
   createSession,
@@ -56,6 +56,8 @@ export async function requestSignUpOtpAction(
         error: "Kata sandi harus terdiri dari minimal 8 karakter.",
       };
     }
+
+    await ensureDatabaseTables(prisma);
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -240,14 +242,23 @@ export async function signInAction(
       };
     }
 
+    await ensureDatabaseTables(prisma);
+
     const user = await prisma.user.findUnique({
       where: { email },
     });
 
-    if (!user || !verifyPassword(password, user.passwordHash)) {
+    if (!user) {
       return {
         success: false,
-        error: "Email atau kata sandi yang Anda masukkan salah.",
+        error: "Akun ini belum terdaftar di database. Silakan klik tab 'Daftar Akun (OTP)' di atas untuk mendaftar.",
+      };
+    }
+
+    if (!verifyPassword(password, user.passwordHash)) {
+      return {
+        success: false,
+        error: "Kata sandi salah. Silakan periksa kembali kata sandi Anda.",
       };
     }
 
@@ -256,11 +267,18 @@ export async function signInAction(
     revalidatePath("/");
 
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to sign in:", error);
+    const msg = error?.message || String(error);
+    if (msg.includes("DB_NOT_BOUND")) {
+      return {
+        success: false,
+        error: "Database D1 belum terhubung! Silakan tambahkan binding 'DB' di Cloudflare: Settings > Bindings.",
+      };
+    }
     return {
       success: false,
-      error: "Gagal masuk ke akun. Silakan coba lagi.",
+      error: `Gagal masuk (${msg}). Silakan coba lagi.`,
     };
   }
 }
@@ -270,6 +288,8 @@ export async function signInDemoAction(): Promise<{
   error?: string;
 }> {
   try {
+    await ensureDatabaseTables(prisma);
+
     const demoEmail = "demo@expense.id";
     let user = await prisma.user.findUnique({
       where: { email: demoEmail },
